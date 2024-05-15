@@ -1,5 +1,9 @@
 ## Welcome
 Trying little bit of assembly for fun
 
-Can u add in assembly🙂... check it out
+
+Tried to do:
+ - adding in assembly🙂
+ - ordering in assembly😰
+
 Architecture: 8086 intel
