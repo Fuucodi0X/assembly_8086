@@ -1,107 +1,89 @@
 org 100h
 
-;display the string on "Enter>>"
-mov dx,0
-lea dx,input
-mov ah,9
-int 21h
+mov dx,offset input ;prepare to string to be displayed(input)
+mov ah,9            ;intrupt singal for output string
+int 21h             ;intrupt call
 
 mov cx,0
-mov dh,0
-lea si,array
+mov si,offset array
 
 ;takes 10 inputs separated by space
-enter:
-mov ah,1
-int 21h
-mov [si],al
-
-mov ah,0eh ;printing the space
-mov al,' '
-int 10h
-
-inc si
-inc cx
-cmp cx,10
-jne enter
-
-mov dh,0
+wait_for_input:
+    mov ah,1    ;intrupt signal for input character
+    int 21h     ;intrupt call
+    mov [si],al ;storing input data in [si] or array
+    
+    mov ah,0eh  ;intrupt signal for output character
+    mov al,' '  ;output character
+    int 10h     ;intrupt call
+    
+    inc si
+    inc cx
+    cmp cx,10
+    jne wait_for_input
 
 
+;bubble sort starts
+mov dh,0 ;clearing the data on dh (outer loop counter)
 outer:
-lea si,array
-lea di,array
-mov cx,0
-add dh,1
-cmp dh,10
-je print
-jne inner
+    mov si,offset array  ;intializing si as first element tracker in the array
+    mov di,offset array  ;intializing di as second element tracker in the array
+    mov cx,0             ;clearing data on cx (inner loop counter)
+    inc dh
+    cmp dh,10
+    je print_output
+
 inner:     
-inc di;i+1
-mov bl,[si] 
-
-;check if 2 consecutive numbers are in asc order
-cmp bl,[di]
-jna continue
-
-;if 2 consecutive is not in order swap them
-mov dl,[di];temp<-a[i+1]
-mov [si],dl;a[i]<-a[i+1]
-mov [di],bl;a[i+1]<-temp
+    inc di
+    mov bl,[si]   ;temp1<-array[i] 
+    
+    ;check if 2 consecutive numbers are in asc order
+    cmp bl,[di]   
+    jna continue
+    
+    ;if 2 consecutive is not in order swap them
+    mov dl,[di] ;temp2<-array[i+1]
+    mov [si],dl ;array[i]<-temp2
+    mov [di],bl ;array[i+1]<-temp1
 
 continue:
-inc cx
-inc si
-
-cmp cx,9
-jne inner
-je outer
-
+    inc cx
+    inc si
+    
+    cmp cx,9
+    jne inner
+    je outer
+    ;bubble sort ended
+    ;array is sorted in asc
 
 
 
 ;print result
-print:
-lea dx,output
-mov ah,9
-int 21h
-
-lea si,array
-lea di,array
-lea bx,B
-mov cx,0
-
-printos:
-inc di
-mov dh,[si]
-mov dl,[di]
-cmp dl,dh
-je end_cond  
-
-mov ah,0eh 
-
-mov al,' '
-int 10h 
- 
-mov al,[si]
-int 10h 
-  
-mov [bx],al 
-inc bx  
-         
-        
-end_cond:  
-inc si
-add cx,1
-cmp cx,10
-jne printos
-je end
+print_output:
+    lea dx,output  ;prepare to string to be displayed(output)
+    mov ah,9       ;intrupt singal for output string
+    int 21h        ;intrupt call
+    
+    lea si,array
+    mov cx,0
+    
+    print:
+    mov ah,0eh   ;intrupt input signal
+    mov al,' '   ;write the character ' '
+    int 10h      ;intrupt call
+     
+    mov al,[si]
+    int 10h 
+                        
+    inc si
+    inc cx
+    cmp cx,10
+    jne print
+    je end
 end:
-ret
+    ret
 
-input db "enter>>$"
-output db "ascend order$"
-dim equ 10
-new db 10,13
-array db dim dup(?)
-B db 0
+input db "Enter 10 Numbers>> $"
+output db "Sorted(ASC):$"
+array db 10 dup(?)
+
